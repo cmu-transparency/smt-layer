@@ -1,4 +1,7 @@
 # SMT Layer
+
+**Code coming soon!**
+
 Implementation of SMTLayer in Pytorch with Z3
 This code is the python companion to **Grounding Neural Inference with Satisfiability Modulo Theories**, which is appearing in NeurIPS 2023.
 
