@@ -7,15 +7,15 @@ This code is the python companion to **Grounding Neural Inference with Satisfiab
 
  In this paper we present a set of techniques for integrating Satisfiability Modulo Theories (SMT) solvers into the forward and backward passes of a deep network layer, called SMTLayer. **Notably, the solver needs not be differentiable.** We implement SMTLayer as a Pytorch module. An overview of our work is shown as follows.
 
-<img width="1026" alt="smt_layer" src="https://github.com/cmu-transparency/smt-layer/assets/9357853/35ae93dc-af5d-4f91-82de-518dd7434faa">
+<img width="1026" alt="smt_layer" src="./images/teaser_figure.png">
 
 SMTLayers, when used on top of other neural network layers, can be leveraged to solve many tasks requiring logical reasoning. For example, the addition of two digits in an image. Morever, we show how to do visual Sudoku, Lier's Puzzle (above), etc.
-<img width="660" alt="example" src="https://github.com/cmu-transparency/smt-layer/assets/9357853/ac36a246-9322-41ef-9096-cdd2916e76ee">
+<img width="660" alt="example" src="./images/mnist_addition.png">
 
 
 We implement SMTLayer as a Pytorch module, and our empirical results show that it leads to models that 1) require fewer training samples than conventional models, 2) that are robust to certain types of covariate shift, and 3) that ultimately learn representations that are consistent with symbolic knowledge, and thus naturally interpretable.
 
-<img width="1000" alt="table" src="https://github.com/cmu-transparency/smt-layer/assets/9357853/4afe0cf3-043f-4945-902f-ee600a38d23b">
+<img width="1000" alt="table" src="./images/table.png">
 
 
 ## Prerequisites
