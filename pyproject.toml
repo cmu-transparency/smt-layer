@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smt-layer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "abcrown",
+    "auto-lirpa",
+    "click>=8.5.0",
+    "numpy>=2.0",
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
+    "tqdm>=4.70.1",
+    "z3-solver>=5.1.0.0",
+]
+
+[tool.uv.sources]
+abcrown = { git = "https://github.com/Verified-Intelligence/alpha-beta-CROWN.git" }
+auto-lirpa = { git = "https://github.com/Verified-Intelligence/auto_LiRPA.git", rev = "5a098e8" }
+
+[tool.setuptools.packages.find]
+include = ["smtlayer*"]

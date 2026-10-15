@@ -18,6 +18,12 @@ from torch.utils.data import TensorDataset
 
 from smtlayer import SMTLayer
 
+DEVICE = torch.device(
+    'cuda' if torch.cuda.is_available()
+    else 'mps' if torch.backends.mps.is_available()
+    else 'cpu'
+)
+
 class MNISTExtractor(nn.Module):
     def __init__(self, n_feats):
         super(MNISTExtractor, self).__init__()
@@ -291,7 +297,7 @@ def train_epoch(epoch_idx, model, optimizer, train_load, use_satlayer=True,
     
     for batch_idx, (data, mask, target) in tloader:
 
-        data, target, mask = data.cuda(), target.cuda(), mask.cuda()
+        data, target, mask = data.to(DEVICE), target.to(DEVICE), mask.to(DEVICE)
 
         if random.choice(range(10)) < 5:
             alldata = [data[i].unsqueeze(0) for i in range(len(data))]
@@ -350,7 +356,7 @@ def test_epoch(epoch_idx, model, test_load, use_satlayer=True, do_maxsat=False):
     for batch_idx, (data, mask, target) in tloader:
         with torch.no_grad():
             
-            data, target, mask = data.cuda(), target.cuda(), mask.cuda()
+            data, target, mask = data.to(DEVICE), target.to(DEVICE), mask.to(DEVICE)
             data = [data[:,i] for i in range(data.size(1))]
             target = target.view(target.size(0),-1)
 
@@ -386,7 +392,7 @@ def pretrain(model, optimizer, train_load, epochs, sched=None, clip_norm=None):
         
         for batch_idx, (data, _, _) in tloader:
 
-            data = data.cuda()
+            data = data.to(DEVICE)
             data = [data[:,i] for i in range(data.size(1))]
             
             optimizer.zero_grad()
@@ -464,9 +470,12 @@ def main(
     pretrain_load, _ = get_dataloader(0.9, batch_size=256)
     train_load, test_load = get_dataloader(pct, batch_size=batch_size)
     grad_scaling = None
+    train_accs = []
+    test_accs = []
+    times = []
 
     for i in range(trials):
-        model = MNISTSudokuSolver(size=9).cuda()
+        model = MNISTSudokuSolver(size=9).to(DEVICE)
         if pretrain_epochs > 0:
             # pre_optimizer = optim.SGD([{'params': model.parameters(), 'lr': lr, 'momentum': 0.9, 'nesterov': True}])
             pre_optimizer = optim.Adam([{'params': model.extractor.parameters(), 'lr': 1.e-3},

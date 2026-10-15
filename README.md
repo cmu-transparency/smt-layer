@@ -67,6 +67,59 @@ mnist_test = torchvision.datasets.MNIST(
 Replace '/data/data' with the appropriate path where you want to store the dataset.
 
 
+## Matched MNIST addition verification
+
+Run both trained checkpoints with the same CROWN method, pixel boxes, seeded
+test pairs, optimization budget, CPU thread count, and per-example timeout:
+
+```bash
+uv run python scripts/verify_mnist_addition.py \
+  --checkpoint checkpoints/mnist_addition_baseline_pct100_seed0_trial1.pt \
+               checkpoints/mnist_addition_smt_pct100_seed0_trial1.pt \
+  --examples 5 --sample-seed 0 \
+  --eps 0 0.003921568627 0.007843137255 0.01568627451 0.03137254902 \
+  --bound-method CROWN-Optimized \
+  --alpha-iterations 20 --alpha-max-time 30 --example-timeout 180 \
+  --output matched_verification.csv
+```
+
+Both models use auto_LiRPA; neither uses branch-and-bound or an attack in this
+comparison. The baseline certifies its five output-bit signs. The SMT model
+bounds eight operand logits and checks all allowed bit assignments using exact
+binary addition with operands 0–15, matching the model's theory. Zero is True.
+`inconclusive` is not evidence of an adversarial example.
+
+Pairs are shuffled with a local seed; every block of 100 covers all ordered
+digit-pair types. Images are sampled from MNIST's test split and their dataset
+indices are saved. This differs from the old first-image, lexicographic pilot.
+
+Results are saved after every model/example/epsilon task:
+
+- `matched_verification.csv`: summaries, completed counts, outcomes, runtime.
+- `matched_verification_examples.csv`: per-example outcomes, bounds, settings,
+  image indices, runtime (including worker startup), and bound-computation time.
+- `matched_verification.resume.json`: durable task state and run identity.
+- `matched_verification_logs/`: library diagnostics for each task.
+
+Rerun the identical command to resume; completed tasks, including timeouts and
+errors, are skipped. An interrupted active task is rerun. Settings, checkpoint
+hashes, sample identities, relevant package versions, and script hash must match.
+Use a new output filename to change settings or retry timed-out tasks. Do not
+run concurrent jobs with the same output path. Existing pilot files are not
+overwritten or imported into the new comparison.
+
+`--alpha-max-time` is a soft limit per bound direction. `--example-timeout` stops
+the worker at the wall-clock limit, including initialization; cleanup can take
+a few extra seconds. Timeouts and errors never count as certificates. Summaries
+during an unfinished run cover only completed tasks; check `completed_examples`.
+`clean_accuracy` covers tasks whose clean prediction was obtained, with
+`clean_evaluated` recording that denominator. At epsilon zero the exact clean
+prediction is sufficient and optimization is skipped for both models.
+
+For a faster, looser matched first pass, use `--bound-method CROWN` with a new
+output filename. For a representative experiment, increase `--examples` to
+100 or more after the pilot succeeds.
+
 ## Acknowledgments
 
 If you use this code please cite
